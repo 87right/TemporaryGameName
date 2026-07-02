@@ -1,6 +1,7 @@
 use bevy::{
     prelude::*,
     color::palettes::css::*,
+    input::mouse::*,
 };
 use std::collections::HashMap;
 
@@ -65,7 +66,7 @@ fn world_gen(mut world_grid: ResMut<WorldGrid>, mut commands: Commands) {
                 Transform::from_xyz (
                     x as f32 * CELL_SIZE,
                     y as f32 * CELL_SIZE,
-                    0.0
+                    100.0
                 ),
             )).id();
             world_grid.0.insert(v, id);
@@ -83,18 +84,22 @@ struct Input;
 impl Plugin for Input {
     fn build(&self, app: &mut App) {
         app.insert_resource(CameraDragData::default());
-        app.add_systems(Update, camera_movement_system);
+        app.add_systems(Update, (
+            camera_movement_system,
+            camera_zoom_system,
+        ));
     }
 }
 
 fn camera_movement_system(
     mut camera_drag_data: ResMut<CameraDragData>, 
-    mut camera_query: Single<&mut Transform, With<Camera>>,
+    camera_query: Single<&mut Transform, With<Camera>>,
     buttons: Res<ButtonInput<MouseButton>>, 
     window: Single<&Window>
 ) {
+    let mut transform = camera_query.into_inner();
     if let Some(position) = window.cursor_position(){
-        let mut transform = camera_query.into_inner();
+        
 
         if buttons.just_pressed(MouseButton::Middle) {
             camera_drag_data.last_cursor_pos = position;
@@ -105,6 +110,19 @@ fn camera_movement_system(
             transform.translation = camera_drag_data.last_camera_pos + (camera_drag_data.last_cursor_pos - position).extend(0.)*Vec3 {x: 1., y:-1., z: 1.};
             camera_drag_data.last_cursor_pos = position;
             camera_drag_data.last_camera_pos = transform.translation;
+        }
+    }
+}
+
+fn camera_zoom_system(
+    mut msr_scroll: MessageReader<MouseWheel>,
+    projection_query: Single<&mut Projection, With<Camera>>,
+) {
+    let mut projection = projection_query.into_inner();
+    if let Projection::Orthographic(ref mut orthographic) = *projection {
+        for ms in msr_scroll.read() {
+            const ZOOM_SPD: f32 = 0.1;
+            orthographic.scale = (orthographic.scale - ms.y * ZOOM_SPD).clamp(0.1, 10.);
         }
     }
 }
