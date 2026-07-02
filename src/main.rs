@@ -1,9 +1,15 @@
+#![allow(dead_code)]
+
+mod grid;
+
 use bevy::{
     prelude::*,
     color::palettes::css::*,
     input::mouse::*,
 };
 use std::collections::HashMap;
+
+use grid::components::*;
 
 const CELL_SIZE: f32 = 64.;
 const MAP_HEIGHT: i32 = 16;
@@ -17,16 +23,10 @@ fn main() {
         .run();
 }
 
-#[derive(Resource, Default)]
-struct WorldGrid (HashMap<IVec2, Entity>);
-
 #[derive(Component)]
 enum GridState {
     Empty,
 }
-
-#[derive(Component)]
-struct GridPos (IVec2);
 
 pub struct Setup;
 impl Plugin for Setup {
