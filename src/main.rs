@@ -1,38 +1,37 @@
+/* src/main.rs */
+
 #![allow(dead_code)]
 
 mod grid;
+mod constants;
 
 use bevy::{
     prelude::*,
-    color::palettes::css::*,
     input::mouse::*,
 };
 use std::collections::HashMap;
 
-use grid::components::*;
+use crate::grid::{
+    components::*,
+    plugins::*,
+};
+use crate::constants::*;
 
-const CELL_SIZE: f32 = 64.;
-const MAP_HEIGHT: i32 = 16;
-const MAP_WIDTH: i32 = 16;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugins(GridPlugins)
         .add_plugins(Setup)
         .add_plugins(Input)
         .run();
-}
-
-#[derive(Component)]
-enum GridState {
-    Empty,
 }
 
 pub struct Setup;
 impl Plugin for Setup {
     fn build(&self, app: &mut App) {
         app.insert_resource(WorldGrid::default());
-        app.add_systems(Startup, (world_gen, setup_camera));
+        app.add_systems(Startup, setup_camera);
     }
 }
 
@@ -46,34 +45,6 @@ fn setup_camera(mut commands: Commands){
             100.
         ),
     ));
-}
-
-fn world_gen(
-    mut world_grid: ResMut<WorldGrid>, 
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-
-    let empty_color = Color::Srgba(AQUA);
-
-    for y in 0..MAP_HEIGHT {
-        for x in 0..MAP_WIDTH {
-            let v = IVec2 {x, y};
-            let id = commands.spawn((
-                GridPos (v), 
-                GridState::Empty,
-                Sprite::from_image(
-                    asset_server.load("textures/tile.png")
-                ),
-                Transform::from_xyz (
-                    x as f32 * CELL_SIZE,
-                    y as f32 * CELL_SIZE,
-                    100.0
-                ),
-            )).id();
-            world_grid.0.insert(v, id);
-        }
-    }
 }
 
 #[derive(Resource, Default)]
