@@ -9,7 +9,6 @@ impl Plugin for GridPlugins {
     fn build(&self, app: &mut App) {
         add_resource(app);
         add_systems_startup(app);
-        add_systems_update(app);
     }
 }
 
@@ -19,10 +18,6 @@ fn add_resource(app: &mut App) {
 
 fn add_systems_startup(app: &mut App) {
     app.add_systems(Startup, create_empty_world_grid);
-}
-
-fn add_systems_update(app: &mut App) {
-    
 }
 
 fn create_empty_world_grid(
