@@ -45,13 +45,13 @@ fn setup_camera(mut commands: Commands){
 
 fn camera_movement_system(
     mut camera_drag_data: ResMut<CameraDragData>, 
-    camera_query: Single<&mut Transform, With<Camera>>,
+    camera_query: Single<(&mut Transform, &Projection), With<Camera>>,
     buttons: Res<ButtonInput<MouseButton>>, 
     window: Single<&Window>
 ) {
-    let mut transform = camera_query.into_inner();
-    if let Some(position) = window.cursor_position(){
-        
+    let( mut transform, projection) = camera_query.into_inner();
+    if let Some(position) = window.cursor_position() 
+    && let Projection::Orthographic(ref  orthographic) = *projection {
 
         if buttons.just_pressed(MouseButton::Middle) {
             camera_drag_data.last_cursor_pos = position;
@@ -59,7 +59,7 @@ fn camera_movement_system(
         }
 
         if buttons.pressed(MouseButton::Middle) {
-            transform.translation = camera_drag_data.last_camera_pos + (camera_drag_data.last_cursor_pos - position).extend(0.)*Vec3 {x: 1., y:-1., z: 1.};
+            transform.translation = camera_drag_data.last_camera_pos + (camera_drag_data.last_cursor_pos - position).extend(0.)*Vec3 {x: 1., y:-1., z: 1.}*orthographic.scale;
             camera_drag_data.last_cursor_pos = position;
             camera_drag_data.last_camera_pos = transform.translation;
         }
