@@ -5,6 +5,7 @@
 mod grid;
 mod constants;
 mod camera;
+mod nodes;
 
 use bevy::prelude::*;
 
