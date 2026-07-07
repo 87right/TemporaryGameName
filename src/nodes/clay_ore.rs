@@ -1,7 +1,11 @@
 //! # Path: src/nodes/clay_ore.rs
 
 use bevy::prelude::*;
-use crate::grid::messages::*;
+use crate::constants::*;
+use crate::grid::{
+    messages::*,
+    components::*,
+};
 use crate::commons::*;
 
 #[derive(Component)]
@@ -20,17 +24,33 @@ impl Registerable for ClayOre {
 fn on_left_clicked(
     mut command: Commands,
     mut rc: MessageReader<LeftClicked>,
-    mut q : Query<&mut ClayOre>,
+    mut q : Query<(&mut ClayOre, &GridPos)>,
     mut writer: MessageWriter<Placed>,
+    asset_server: Res<AssetServer>,
 ) {
     for m in rc.read() {
         let clicked_entity = m.0;
-        if let Ok(mut val) = q.get_mut(clicked_entity) {
+        if let Ok((mut val, GridPos (grid_pos))) = q.get_mut(clicked_entity) {
             val.health -= 1;
             if val.health == 0 {
                 command.entity(clicked_entity).remove::<ClayOre>();
                 command.entity(clicked_entity).insert(crate::nodes::empty::Empty);
                 writer.write(Placed (clicked_entity));
+
+                command.spawn((
+                    crate::movables::item::Item {
+                        id: 0,
+                        size: 1,
+                    },
+                    Sprite::from_image(
+                        asset_server.load("textures/item/clay.png")
+                    ),
+                    Transform::from_xyz(
+                        grid_pos.x as f32 * CELL_SIZE,
+                        grid_pos.y as f32 * CELL_SIZE,
+                        1.
+                    )
+                ));
             }
         }
     }

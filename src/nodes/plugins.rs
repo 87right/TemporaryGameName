@@ -9,6 +9,7 @@ impl Plugin for NodePlugins {
     fn build(&self, app: &mut App) {
         register::<empty::Empty>(app);
         register::<clay_ore::ClayOre>(app);
+        register::<conveyor::Conveyor>(app);
     }
 }
 
