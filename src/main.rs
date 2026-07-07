@@ -7,7 +7,7 @@ mod constants;
 mod commons;
 mod camera;
 mod nodes;
-mod movable;
+mod movables;
 
 use bevy::prelude::*;
 

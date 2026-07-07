@@ -1,4 +1,4 @@
-//! # Path: src/movable/mod.rs
+//! # Path: src/movables/mod.rs
 
 pub mod components;
 pub mod plugins;
