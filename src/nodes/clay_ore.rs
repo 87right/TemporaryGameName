@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 use crate::grid::messages::*;
-use crate::nodes::commons::*;
+use crate::commons::*;
 
 #[derive(Component)]
 pub struct ClayOre {

@@ -1,4 +1,4 @@
-//! # Path: src/nodes/commons.rs
+//! # Path: src/commons.rs
 
 use bevy::prelude::*;
 

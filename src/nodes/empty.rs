@@ -3,7 +3,7 @@
 use bevy::prelude::*;
 use crate::grid::messages::*;
 use crate::nodes::clay_ore::ClayOre;
-use crate::nodes::commons::*;
+use crate::commons::*;
 
 #[derive(Component)]
 pub struct Empty;

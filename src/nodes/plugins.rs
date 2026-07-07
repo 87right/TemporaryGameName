@@ -1,10 +1,8 @@
 //! # Path: src/nodes/plugins.rs
 
 use bevy::prelude::*;
-use crate::nodes::{
-    *,
-    commons::*,
-};
+use crate::nodes::*;
+use crate::commons::*;
 
 pub struct NodePlugins;
 impl Plugin for NodePlugins {

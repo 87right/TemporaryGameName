@@ -4,8 +4,10 @@
 
 mod grid;
 mod constants;
+mod commons;
 mod camera;
 mod nodes;
+mod movable;
 
 use bevy::prelude::*;
 
