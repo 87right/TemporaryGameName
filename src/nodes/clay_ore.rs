@@ -26,13 +26,11 @@ fn on_left_clicked(
     for m in rc.read() {
         let clicked_entity = m.0;
         if let Ok(mut val) = q.get_mut(clicked_entity) {
+            val.health -= 1;
             if val.health == 0 {
                 command.entity(clicked_entity).remove::<ClayOre>();
                 command.entity(clicked_entity).insert(crate::nodes::empty::Empty);
                 writer.write(Placed (clicked_entity));
-
-            } else {
-                val.health -= 1;
             }
         }
     }
