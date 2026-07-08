@@ -29,7 +29,12 @@ pub struct InventorySlotID (pub usize);
 pub struct InventorySize (pub usize);
 
 #[derive(Message)]
-pub struct ItenSendReq {
+pub struct ItemSendReq {
     pub from : Entity,
+    pub to   : Entity,
     pub index: InventorySlotID,
+}
+
+pub trait Spawnable {
+    fn get_bundle() -> impl Bundle;
 }

@@ -4,7 +4,8 @@ use bevy::prelude::*;
 use crate::grid::messages::*;
 use crate::nodes::{
     clay_ore::ClayOre,
-    conveyor::Conveyor,
+    item_collector::*,
+    commons::*,
 };
 use crate::commons::*;
 
@@ -30,7 +31,7 @@ fn on_right_clicked(
         let clicked_entity = m.0;
         if let Ok(_) = q.get(clicked_entity) {
             command.entity(clicked_entity).remove::<Empty>();
-            command.entity(clicked_entity).insert(Conveyor::default());
+            command.entity(clicked_entity).insert(ClayOre::default());
             writer.write(Placed (clicked_entity));
         }
     }
@@ -46,7 +47,7 @@ fn on_left_clicked(
         let clicked_entity = m.0;
         if let Ok(_) = q.get(clicked_entity) {
             command.entity(clicked_entity).remove::<Empty>();
-            command.entity(clicked_entity).insert(ClayOre::default());
+            command.entity(clicked_entity).insert(ItemCollector::get_bundle());
             writer.write(Placed (clicked_entity));
         }
     }

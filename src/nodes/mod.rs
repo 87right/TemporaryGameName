@@ -6,3 +6,4 @@ pub mod commons;
 pub mod empty;
 pub mod clay_ore;
 pub mod conveyor;
+pub mod item_collector;
