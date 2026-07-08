@@ -6,9 +6,7 @@ use crate::grid::messages::*;
 use crate::nodes::commons::*;
 
 #[derive(Component)]
-pub struct Conveyor {
-    pub inventory: Inventory
-}
+pub struct Conveyor;
 impl Registerable for Conveyor {
     fn register(app: &mut App) {
         app.add_systems(PostUpdate, on_placed);
@@ -17,9 +15,8 @@ impl Registerable for Conveyor {
 impl Spawnable for Conveyor {
     fn get_bundle() -> impl Bundle {
         (
-            Conveyor {
-                inventory: Inventory::create_empty(InventorySize(1)),
-            },
+            Conveyor,
+            Inventory::create_empty(InventorySize(1))
         )
     }
 }
