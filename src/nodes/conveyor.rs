@@ -21,6 +21,22 @@ impl Spawnable for Conveyor {
     }
 }
 
+fn on_item_sent(
+    mut reader: MessageReader<ItemSendReq>,
+    mut conveyor_q: Query<&mut Inventory, With<Conveyor>>,
+    mut inventory_q: Query<&mut Inventory>,
+) {
+    for m in reader.read() {
+        if let Ok(mut inventory) = conveyor_q.get_mut(m.to) {
+            if let Some(_) = inventory.check_item(InventorySlotID(0)) {
+                return;
+            }
+            if let Ok(mut from_inventory) = inventory_q.get_mut(m.from) {
+                inventory.write_item(InventorySlotID(0), InventorySlot(from_inventory.take_item(&m.index)));
+            }
+        }
+    }
+}
 
 fn on_placed(
     mut reader: MessageReader<Placed>,
