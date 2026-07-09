@@ -2,6 +2,7 @@
 
 use bevy::prelude::*;
 use crate::commons::*;
+use crate::grid::components::{GridPos, WorldGrid};
 use crate::grid::messages::*;
 use crate::nodes::commons::*;
 
@@ -9,6 +10,10 @@ use crate::nodes::commons::*;
 pub struct Conveyor;
 impl Registerable for Conveyor {
     fn register(app: &mut App) {
+        app.add_systems(Update, (
+            on_item_sent,
+            on_update,
+        ));
         app.add_systems(PostUpdate, on_placed);
     }
 }
@@ -23,17 +28,40 @@ impl Spawnable for Conveyor {
 
 fn on_item_sent(
     mut reader: MessageReader<ItemSendReq>,
-    mut conveyor_q: Query<&mut Inventory, With<Conveyor>>,
     mut inventory_q: Query<&mut Inventory>,
+    conveyor_q: Query<&GridPos, With<Conveyor>>,
+    world: Res<WorldGrid>,
 ) {
     for m in reader.read() {
-        if let Ok(mut inventory) = conveyor_q.get_mut(m.to) {
-            if let Some(_) = inventory.check_item(InventorySlotID(0)) {
-                return;
-            }
-            if let Ok(mut from_inventory) = inventory_q.get_mut(m.from) {
-                inventory.write_item(InventorySlotID(0), InventorySlot(from_inventory.take_item(&m.index)));
-            }
+        let can_receive = if let Ok(inventory) = inventory_q.get(m.to) 
+        && let Ok(grid_pos) = conveyor_q.get(m.to) 
+        && let Some(target_e) = world.0.get(&(grid_pos.0 + IVec2::X)){
+            *target_e == m.from && inventory.check_item(InventorySlotID(0)).is_none()
+        } else {
+            false
+        };
+
+        if !can_receive {continue;}
+
+        if let Ok([mut to_inv, mut from_inv]) = inventory_q.get_many_mut([m.to, m.from]) {
+            to_inv.write_item(InventorySlotID(0), InventorySlot(from_inv.take_item(&m.index)));
+        }
+    }
+}
+
+fn on_update(
+    mut writer: MessageWriter<ItemSendReq>,
+    conveyor_q: Query<(&mut Inventory, &GridPos, Entity), With<Conveyor>>,
+    world: Res<WorldGrid>
+) {
+    for (inventory, grid_pos, e) in conveyor_q {
+        if inventory.check_item(InventorySlotID(0)).is_some() 
+        && let Some(to) = world.0.get(&(grid_pos.0 + IVec2::NEG_X)) {
+            writer.write(ItemSendReq {
+                from: e,
+                to: *to,
+                index: InventorySlotID(0),
+            });
         }
     }
 }
