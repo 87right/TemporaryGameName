@@ -1,7 +1,7 @@
 //! # Path: src/movables/item.rs
 
 use bevy::prelude::*;
-use crate::{commons::*, nodes::commons::Spawnable};
+use crate::commons::*;
 
 #[derive(Component, Clone)]
 pub struct Item {
