@@ -1,7 +1,7 @@
 //! # Path: src/nodes/commons.rs
 
 use bevy::prelude::*;
-use crate::movables::item::Item;
+use crate::{grid::messages::Placed, movables::item::Item};
 
 #[derive(Component)]
 pub struct Inventory (pub Vec<InventorySlot>);
@@ -38,4 +38,13 @@ pub struct ItemSendReq {
 
 pub trait Spawnable {
     fn get_bundle() -> impl Bundle;
+}
+
+pub fn replace<From: Bundle, To: Spawnable>(
+    command: &mut Commands,
+    writer: &mut MessageWriter<Placed>,
+    entity: Entity,
+) {
+    command.entity(entity).remove::<From>().insert(To::get_bundle());
+    writer.write(Placed(entity));
 }

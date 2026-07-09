@@ -8,7 +8,10 @@ use crate::grid::{
 };
 use crate::commons::*;
 use crate::movables::item::*;
-use crate::nodes::commons::Spawnable;
+use crate::nodes::{
+    commons::*,
+    empty::Empty,
+};
 
 #[derive(Component)]
 pub struct ClayOre {
@@ -44,9 +47,7 @@ fn on_left_clicked(
         if let Ok((mut val, GridPos (grid_pos))) = q.get_mut(clicked_entity) {
             val.health -= 1;
             if val.health == 0 {
-                command.entity(clicked_entity).remove::<ClayOre>();
-                command.entity(clicked_entity).insert(crate::nodes::empty::Empty::get_bundle());
-                writer.write(Placed (clicked_entity));
+                replace::<ClayOre, Empty>(&mut command, &mut writer, clicked_entity);
 
                 command.spawn((
                     Item {

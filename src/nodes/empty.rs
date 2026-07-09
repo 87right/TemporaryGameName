@@ -37,9 +37,7 @@ fn on_right_clicked(
     for m in rc.read() {
         let clicked_entity = m.0;
         if let Ok(_) = q.get(clicked_entity) {
-            command.entity(clicked_entity).remove::<Empty>();
-            command.entity(clicked_entity).insert(ClayOre::get_bundle());
-            writer.write(Placed (clicked_entity));
+            replace::<Empty, ClayOre>(&mut command, &mut writer, clicked_entity);
         }
     }
 }
@@ -53,9 +51,7 @@ fn on_left_clicked(
     for m in lc.read() {
         let clicked_entity = m.0;
         if let Ok(_) = q.get(clicked_entity) {
-            command.entity(clicked_entity).remove::<Empty>();
-            command.entity(clicked_entity).insert(ItemCollector::get_bundle());
-            writer.write(Placed (clicked_entity));
+            replace::<Empty, ItemCollector>(&mut command, &mut writer, clicked_entity);
         }
     }
 }
