@@ -1,7 +1,7 @@
 //! # Path: src/movables/item.rs
 
 use bevy::prelude::*;
-use crate::commons::*;
+use crate::{commons::*, nodes::commons::Spawnable};
 
 #[derive(Component, Clone)]
 pub struct Item {
@@ -12,6 +12,9 @@ impl Registerable for Item {
     fn register(_app: &mut App) {
     }
 }
+
+#[derive(Component)]
+pub struct DisplayItem;
 
 #[derive(Clone)]
 pub enum Type {
