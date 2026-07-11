@@ -48,3 +48,11 @@ pub fn replace<From: Bundle, To: Spawnable>(
     command.entity(entity).remove::<From>().insert(To::get_bundle());
     writer.write(Placed(entity));
 }
+
+#[derive(Component)]
+pub struct Shake {
+    pub base_x: f32,
+    pub scale: f32,
+    pub pace: f32,
+    pub timer: Timer
+}

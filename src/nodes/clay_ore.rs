@@ -44,11 +44,11 @@ fn on_left_clicked(
 ) {
     for m in rc.read() {
         let clicked_entity = m.0;
-        if let Ok((mut val, GridPos (grid_pos))) = q.get_mut(clicked_entity) {
+        if let Ok((mut val, grid_pos)) = q.get_mut(clicked_entity) {
             val.health -= 1;
             if val.health == 0 {
                 replace::<ClayOre, Empty>(&mut command, &mut writer, clicked_entity);
-
+                let pos = grid_pos.to_bottom_left_vec2();
                 command.spawn((
                     Item {
                         id: Type::Clay,
@@ -56,11 +56,20 @@ fn on_left_clicked(
                     },
                     Type::Clay.get_sprite(&asset_server),
                     Transform::from_xyz(
-                        grid_pos.x as f32 * CELL_SIZE,
-                        grid_pos.y as f32 * CELL_SIZE,
+                        pos.x,
+                        pos.y,
                         1.
                     )
                 ));
+            } else {
+                command.entity(clicked_entity).insert(
+                    Shake {
+                        base_x: grid_pos.to_bottom_left_vec2().x,
+                        scale: CELL_SIZE / 16.,
+                        pace: 0.05,
+                        timer: Timer::from_seconds(0.1, TimerMode::Once),
+                    }
+                );
             }
         }
     }
