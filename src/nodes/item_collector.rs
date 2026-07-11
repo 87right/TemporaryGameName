@@ -49,9 +49,10 @@ fn on_update(
                 for target in targets {
                     if let Some(e_to) = world_grid.0.get(&(target + grid_pos.0)) {
                         writer.write(ItemSendReq {
-                            from : e,
-                            to   : *e_to,
-                            index: InventorySlotID(0),
+                            from  : e,
+                            to    : *e_to,
+                            index : InventorySlotID(0),
+                            e_item: None
                         });
                     }
                 }

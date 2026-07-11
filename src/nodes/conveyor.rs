@@ -60,22 +60,25 @@ fn on_item_sent(
             to_inv.write_item(InventorySlotID(0), InventorySlot(new_item.clone()));
             if let Some(item) = new_item {
                 let item_pos = grid_pos.to_bottom_left_vec2();
-                conveyor.display_item = Some(command.spawn((
-                    DisplayItem,
-                    item.id.get_sprite(&asset_server),
-                    Transform::from_xyz(
-                        item_pos.x + CELL_SIZE as f32 / 2.,
-                        item_pos.y,
-                        1.
-                    )
-                )).id());
+                if let Some(entity_item) = m.e_item {
+                    conveyor.display_item = Some(entity_item);
+                } else {
+                    conveyor.display_item = Some(command.spawn((
+                        DisplayItem,
+                        item.id.get_sprite(&asset_server),
+                        Transform::from_xyz(
+                            item_pos.x + CELL_SIZE as f32 / 2.,
+                            item_pos.y,
+                            1.
+                        )
+                    )).id());
+                }
             }
         }
     }
 }
 
 fn on_update(
-    mut command: Commands,
     mut writer: MessageWriter<ItemSendReq>,
     mut display_item_q: Query<&mut Transform, With<DisplayItem>>,
     conveyor_q: Query<(&mut Inventory, &mut Conveyor, &GridPos, Entity)>,
@@ -95,11 +98,10 @@ fn on_update(
                     from: e,
                     to: *to,
                     index: InventorySlotID(0),
+                    e_item: conveyor.display_item,
                 });
             }
-        } else if let Some(e) = conveyor.display_item.take() {
-            command.entity(e).despawn();
-        }
+        } 
     }
 }
 

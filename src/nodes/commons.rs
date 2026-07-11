@@ -31,9 +31,10 @@ pub struct InventorySize (pub usize);
 
 #[derive(Message)]
 pub struct ItemSendReq {
-    pub from : Entity,
-    pub to   : Entity,
-    pub index: InventorySlotID,
+    pub from  : Entity,
+    pub to    : Entity,
+    pub index : InventorySlotID,
+    pub e_item: Option<Entity>
 }
 
 pub trait Spawnable {
