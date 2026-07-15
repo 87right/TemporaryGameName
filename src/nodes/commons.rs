@@ -20,10 +20,33 @@ impl Inventory {
             *slot = item;
         }
     }
+    pub fn insert(&mut self, item: Item) -> bool {
+        for slot in &mut self.0 {
+            if slot.insert(item) {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 #[derive(Clone)]
 pub struct InventorySlot (pub Option<Item>);
+impl InventorySlot {
+    pub fn insert(&mut self, item: Item) -> bool {
+        if let Some(mut content) = self.0 {
+            if content.id == item.id {
+                content.size += item.size;
+                true
+            } else {
+                false
+            }
+        } else {
+            self.0 = Some(item);
+            true
+        }
+    }
+}
 
 #[derive(Clone)]
 pub struct InventorySlotID (pub usize);
