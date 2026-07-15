@@ -48,7 +48,7 @@ fn on_left_clicked(
             val.health -= 1;
             if val.health == 0 {
                 replace::<ClayOre, Empty>(&mut command, &mut writer, clicked_entity);
-                let pos = grid_pos.to_bottom_left_vec2();
+                let pos = grid_pos.to_center_vec2();
                 command.spawn((
                     Item {
                         id: Type::Clay,
@@ -58,13 +58,13 @@ fn on_left_clicked(
                     Transform::from_xyz(
                         pos.x,
                         pos.y,
-                        1.
+                        3.
                     )
                 ));
             } else {
                 command.entity(clicked_entity).insert(
                     Shake {
-                        base_x: grid_pos.to_bottom_left_vec2().x,
+                        base_x: grid_pos.to_center_vec2().x,
                         scale: CELL_SIZE / 16.,
                         pace: 0.05,
                         timer: Timer::from_seconds(0.1, TimerMode::Once),

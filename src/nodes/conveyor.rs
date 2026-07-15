@@ -5,6 +5,7 @@ use crate::commons::*;
 use crate::constants::CELL_SIZE;
 use crate::grid::components::{GridPos, WorldGrid};
 use crate::grid::messages::*;
+use crate::movables::components::{MoveTasks, Movement};
 use crate::movables::item::DisplayItem;
 use crate::nodes::commons::*;
 
@@ -59,7 +60,7 @@ fn on_item_sent(
             let new_item = from_inv.take_item(m.index);
             to_inv.write_item(InventorySlotID(0), InventorySlot(new_item.clone()));
             if let Some(item) = new_item {
-                let item_pos = grid_pos.to_bottom_left_vec2();
+                let item_pos = grid_pos.to_center_vec2();
                 if let Some(entity_item) = m.e_item {
                     conveyor.display_item = Some(entity_item);
                 } else {
@@ -70,9 +71,27 @@ fn on_item_sent(
                             item_pos.x + CELL_SIZE as f32 / 2.,
                             item_pos.y,
                             1.
-                        )
+                        ),
+                        
                     )).id());
                 }
+                command.entity(conveyor.display_item.unwrap()).insert(
+                MoveTasks{
+                        tasks: vec![
+                            Movement::Bezier { 
+                                begin: (
+                                    item_pos + Vec2{x: CELL_SIZE / 2., y: 0.},
+                                    Vec2{x: -CELL_SIZE, y: 0.},
+                                ), 
+                                end: (
+                                    item_pos + Vec2{x: - CELL_SIZE / 2., y: 0.},
+                                    Vec2{x: -CELL_SIZE, y: 0.},
+                                ), 
+                                seconds: 2.
+                            }].into(),
+                        timer: Timer::from_seconds(2., TimerMode::Once)
+                    },
+                );
             }
         }
     }
@@ -80,7 +99,6 @@ fn on_item_sent(
 
 fn on_update(
     mut writer: MessageWriter<ItemSendReq>,
-    mut display_item_q: Query<&mut Transform, With<DisplayItem>>,
     conveyor_q: Query<(&mut Inventory, &mut Conveyor, &GridPos, Entity)>,
     world: Res<WorldGrid>,
     time: Res<Time>,
@@ -88,10 +106,6 @@ fn on_update(
     for (inventory, mut conveyor, grid_pos, e) in conveyor_q {
         if inventory.check_item(InventorySlotID(0)).is_some() {
             conveyor.timer.tick(time.delta());
-            if let Some(item_entity) = conveyor.display_item
-            && let Ok(mut transform) = display_item_q.get_mut(item_entity) {
-                transform.translation.x = grid_pos.to_bottom_left_vec2().x as f32 + CELL_SIZE * conveyor.timer.remaining().as_secs_f32() / 2.;
-            }
             if conveyor.timer.is_finished()
             && let Some(to) = world.0.get(&(grid_pos.0 + IVec2::NEG_X)) {
                 writer.write(ItemSendReq {

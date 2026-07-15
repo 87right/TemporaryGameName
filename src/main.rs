@@ -17,5 +17,6 @@ fn main() {
         .add_plugins(crate::grid::plugins::GridPlugins)
         .add_plugins(crate::camera::plugins::CameraPlugins)
         .add_plugins(crate::nodes::plugins::NodePlugins)
+        .add_plugins(crate::movables::plugins::MovablePlugins)
         .run();
 }

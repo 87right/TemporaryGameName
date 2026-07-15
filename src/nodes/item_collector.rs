@@ -39,7 +39,7 @@ fn on_update(
 ) {
     for (grid_pos, mut inventory, e) in q {
         for (item, transform, e) in items {
-            let pos = grid_pos.to_bottom_left_vec2();
+            let pos = grid_pos.to_center_vec2();
             let diff = Vec2 {
                 x: transform.translation.x - pos.x,
                 y: transform.translation.y - pos.y,

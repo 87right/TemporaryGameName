@@ -68,7 +68,7 @@ fn on_update(
             if furnace.timer.tick(time.delta()).just_finished() {
                 inventory.take_1(SLOT_INPUT);
                 furnace.timer.reset();
-                let pos = grid_pos.to_bottom_left_vec2();
+                let pos = grid_pos.to_center_vec2();
                 commands.spawn((
                     Item {
                         id: Type::Brick,
