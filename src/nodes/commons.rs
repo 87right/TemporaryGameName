@@ -45,6 +45,14 @@ impl Inventory {
         }
         false
     }
+    pub fn some_item(&self, port: Port) -> Option<InventorySlotID> {
+        for slot_id in port.get_target_slot_id() {
+            if self.0.get(slot_id.0).and_then(|x| x.0).is_some() {
+                return Some(slot_id);
+            }
+        }
+        None
+    }
 }
 
 #[derive(Clone)]
@@ -143,6 +151,26 @@ impl InputPort {
             is_active: true,
             recieved: false,
             display_item: None,
+        }
+    }
+}
+
+#[derive(Component, Clone, Copy)]
+pub struct OutputPort{
+    pub port: Port,
+    pub is_active: bool,
+    pub sent: bool,
+    pub display_item: Option<Entity>,
+    pub to: IVec2
+}
+impl OutputPort {
+    pub fn new(port: Port, to: IVec2) -> Self {
+        Self { 
+            port, 
+            is_active: true, 
+            sent: false, 
+            display_item: None, 
+            to 
         }
     }
 }

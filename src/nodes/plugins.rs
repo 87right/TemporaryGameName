@@ -2,9 +2,12 @@
 
 use bevy::prelude::*;
 use crate::constants::PIE;
+use crate::grid::components::GridPos;
+use crate::grid::components::WorldGrid;
 use crate::nodes::commons::InputPort;
 use crate::nodes::commons::Inventory;
 use crate::nodes::commons::ItemSendReq;
+use crate::nodes::commons::OutputPort;
 use crate::nodes::commons::Shake;
 use crate::nodes::*;
 use crate::commons::*;
@@ -15,10 +18,8 @@ impl Plugin for NodePlugins {
         app.add_message::<ItemSendReq>();
 
         app.add_systems(First, handle_auto_input);
-
-        app.add_systems(Update, (
-            shaking,
-        ));
+        app.add_systems(Last, handle_auto_output);
+        app.add_systems(Update, shaking);
 
         register::<empty::Empty>(app);
         register::<clay_ore::ClayOre>(app);
@@ -71,5 +72,24 @@ fn handle_auto_input(
                 port.display_item = m.e_item;
             }
         }
+    }
+}
+
+fn handle_auto_output(
+    mut writer: MessageWriter<ItemSendReq>,
+    output_q: Query<(&mut OutputPort, &Inventory, &GridPos, Entity)>,
+    world_grid: Res<WorldGrid>,
+) {
+    for (mut port, inventory, grid_pos, e) in output_q {
+        if let Some(slot_id) = inventory.some_item(port.port) 
+        && let Some(to) = world_grid.0.get(&(port.to + grid_pos.0)) {
+            writer.write(ItemSendReq { 
+                from: e, 
+                to: *to, 
+                index: slot_id,
+                e_item: port.display_item
+            });
+            port.sent = true;
+        } 
     }
 }
