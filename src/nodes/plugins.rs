@@ -14,9 +14,10 @@ impl Plugin for NodePlugins {
     fn build(&self, app: &mut App) {
         app.add_message::<ItemSendReq>();
 
+        app.add_systems(First, handle_auto_input);
+
         app.add_systems(Update, (
             shaking,
-            handle_auto_input,
         ));
 
         register::<empty::Empty>(app);
