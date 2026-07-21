@@ -8,5 +8,5 @@ pub enum GridFixed {
     IOExecute,
     MainUpdate,
     Cleanup,
-    OnBroken,
+    OnRemoved,
 }

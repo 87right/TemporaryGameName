@@ -23,3 +23,6 @@ impl GridPos{
         }
     }
 }
+
+#[derive(Component)]
+pub struct PlaceBuff(pub String);

@@ -29,3 +29,14 @@ impl Default for GridGenSetting{
         }
     }
 }
+
+#[derive(Resource)]
+pub struct SpawnTable(pub HashMap<String, fn(&mut Commands, Entity)>);
+impl SpawnTable {
+    pub fn insert(&mut self, key: String, val: fn(&mut Commands, Entity)) -> Option<fn(&mut Commands, Entity)>{
+        self.0.insert(key, val)
+    }
+    pub fn get(&self, key: &String) -> Option<&fn(&mut Commands, Entity)> {
+        self.0.get(key)
+    }
+}
