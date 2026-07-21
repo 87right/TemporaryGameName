@@ -49,13 +49,16 @@ fn handle_mouse_click(
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     grid_entity_map: Res<GridEntityMap>,
     window: Single<&Window>,
+    camera: Single<(&Camera, &GlobalTransform)>,
 ) {
     let lc = mouse_buttons.just_released(MouseButton::Left);
     let rc = mouse_buttons.just_released(MouseButton::Right);
     if lc || rc {
+        let (camera, global_transform) = camera.into_inner();
         if let Some(cursor_pos) = window.cursor_position() {
-            let grid_pos = GridPos::from_world_pos(cursor_pos);
-            if let Some(entity) = grid_entity_map.get(&grid_pos) {
+            if let Ok(cursor_pos) = camera.viewport_to_world_2d(global_transform, cursor_pos)
+            && let grid_pos = GridPos::from_world_pos(cursor_pos)
+            && let Some(entity) = grid_entity_map.get(&grid_pos) {
                 if lc {
                     left_clicked_writer.write(LeftClicked(entity));
                 }
