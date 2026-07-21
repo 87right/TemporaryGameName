@@ -22,6 +22,15 @@ impl GridPos{
             y: self.y() as f32 * CELL_SIZE, 
         }
     }
+    pub fn from_world_pos(mut world_pos: Vec2) -> Self {
+        world_pos -= vec2(1., 1.) * CELL_SIZE / 2.;
+        Self(
+            IVec2{
+                x: world_pos.x as i32,
+                y: world_pos.y as i32,
+            }
+        )
+    }
 }
 
 #[derive(Component)]
