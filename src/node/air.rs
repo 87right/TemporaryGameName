@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::grid::{common::BasicNode, component::LeftClicked, system_set::GridFixed};
+use crate::{grid::{common::BasicNode, component::LeftClicked, system_set::GridFixed, util::replace}, node::clay_ore::ClayOre};
 
 #[derive(Component)]
 pub struct Air;
@@ -23,9 +23,10 @@ impl BasicNode for Air {
 
 // test
 fn on_right_clicked(
+    mut commands: Commands,
     node_q: Query<Entity, (With<LeftClicked>, With<Air>)>,
 ) {
     for entity in node_q {
-        println!("{entity}");
+        replace::<ClayOre>(&mut commands, entity);
     }
 }

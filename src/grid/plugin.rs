@@ -1,13 +1,11 @@
 use bevy::{
     prelude::*,
 };
-use crate::grid::{
-        component::{
-            *
-        }, resource::{
+use crate::{grid::{
+        component::*, resource::{
             Background, GridEntityMap, GridGenSetting, SpawnTable, SyncMouseButtonInput
         }, system_set::*, util::{reload_background, respawn_grid},
-    };
+    }, node::air::Air};
 
 pub struct GridPlugin;
 impl Plugin for GridPlugin{
@@ -21,12 +19,13 @@ impl Plugin for GridPlugin{
         app.add_systems(Update, (
             recieve_update_input,
             handle_mouse_click,
+            consume_texture_buff,
         ));
-        app.add_systems(FixedUpdate, consume_place_buff);
-        app.add_systems(FixedLast, (
+        app.add_systems(FixedUpdate, (
             clear_mid_fixed_input,
             clear_message_component,
-        ));
+            consume_place_buff,
+        ).chain().in_set(GridFixed::Cleanup));
     }
 }
 
@@ -46,7 +45,7 @@ fn clear_message_component(
     mut commands: Commands,
     lc: Query<Entity, With<LeftClicked>>,
     rc: Query<Entity, With<RightClicked>>,
-    pl: Query<Entity, With<Placed>>,
+    pl: Query<Entity, (With<Placed>, Without<PlaceBuff>)>,
     rm: Query<Entity, With<Removed>>,
 ) {
     for e in lc {
@@ -79,8 +78,22 @@ fn consume_place_buff(
     for (buff, e) in place_buff_q {
         if let Some(spawn_fn) = spawn_table.get(&buff.0) {
             spawn_fn(&mut commands, e);
-            commands.entity(e).insert(Placed);
+            commands.entity(e)
+                .remove::<PlaceBuff>()
+                .insert(Placed);
         }
+    }
+}
+
+fn consume_texture_buff(
+    mut commands: Commands,
+    texture_buf_q: Query<(&TextureBuff, Entity)>,
+    asset_server: Res<AssetServer>,
+) {
+    for (buf, e) in texture_buf_q {
+        commands.entity(e)
+            .insert(Sprite::from_image(asset_server.load(&buf.0)))
+            .remove::<TextureBuff>();
     }
 }
 

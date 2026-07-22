@@ -43,6 +43,9 @@ impl PlaceBuff{
 }
 
 #[derive(Component)]
+pub struct TextureBuff(pub String);
+
+#[derive(Component)]
 pub struct Removed;
 
 #[derive(Component)]

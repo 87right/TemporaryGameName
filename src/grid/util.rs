@@ -22,7 +22,11 @@ pub fn respawn_grid(
     for y in 0..setting.height {
         for x in 0..setting.width {
             let cur_pos = GridPos(ivec2(x as i32, y as i32));
-            let new_entity = commands.spawn(PlaceBuff::from_str("air")).id();
+            let new_entity = commands.spawn((
+                PlaceBuff::from_str("air"),
+                Transform::from_xyz(x as f32 * CELL_SIZE, y as f32 * CELL_SIZE, 1.),
+                cur_pos.clone()
+            )).id();
             if let Some(last_entity) = grid_map.insert(&cur_pos, new_entity) {
                 commands.entity(last_entity).despawn();
             }
