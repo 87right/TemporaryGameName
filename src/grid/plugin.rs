@@ -3,10 +3,7 @@ use bevy::{
 };
 use crate::grid::{
         component::{
-            GridPos, 
-            PlaceBuff
-        }, message::{
-            LeftClicked, Placed, Removed, RightClicked
+            *
         }, resource::{
             Background, GridEntityMap, GridGenSetting, SpawnTable, SyncMouseButtonInput
         }, system_set::*, util::{reload_background, respawn_grid},
@@ -16,26 +13,21 @@ pub struct GridPlugin;
 impl Plugin for GridPlugin{
     fn build(&self, app: &mut App) {
         register_grid_update_schedule(app);
-        add_message(app);
         add_resource(app);
         app.add_systems(Startup, (
             respawn_grid,
             reload_background,
         ));
-        app.add_systems(Update, recieve_update_input);
-        app.add_systems(FixedUpdate, (
+        app.add_systems(Update, (
+            recieve_update_input,
             handle_mouse_click,
-            consume_place_buff,
         ));
-        app.add_systems(FixedLast, clear_mid_fixed_input);
+        app.add_systems(FixedUpdate, consume_place_buff);
+        app.add_systems(FixedLast, (
+            clear_mid_fixed_input,
+            clear_message_component,
+        ));
     }
-}
-
-fn add_message(app: &mut App) {
-    app.add_message::<Removed>();
-    app.add_message::<Placed>();
-    app.add_message::<RightClicked>();
-    app.add_message::<LeftClicked>();
 }
 
 fn register_grid_update_schedule(app: &mut App) {
@@ -50,6 +42,27 @@ fn register_grid_update_schedule(app: &mut App) {
     ));
 }
 
+fn clear_message_component(
+    mut commands: Commands,
+    lc: Query<Entity, With<LeftClicked>>,
+    rc: Query<Entity, With<RightClicked>>,
+    pl: Query<Entity, With<Placed>>,
+    rm: Query<Entity, With<Removed>>,
+) {
+    for e in lc {
+        commands.entity(e).remove::<LeftClicked>();
+    }
+    for e in rc {
+        commands.entity(e).remove::<RightClicked>();
+    }
+    for e in pl {
+        commands.entity(e).remove::<Placed>();
+    }
+    for e in rm {
+        commands.entity(e).remove::<Removed>();
+    }
+}
+
 fn add_resource(app: &mut App) {
     app.insert_resource(GridEntityMap::default());
     app.insert_resource(SpawnTable::default());
@@ -60,14 +73,13 @@ fn add_resource(app: &mut App) {
 
 fn consume_place_buff(
     mut commands: Commands,
-    mut placed_message_writer: MessageWriter<Placed>,
     place_buff_q: Query<(&PlaceBuff, Entity)>,
     spawn_table: Res<SpawnTable>,
 ) {
     for (buff, e) in place_buff_q {
         if let Some(spawn_fn) = spawn_table.get(&buff.0) {
             spawn_fn(&mut commands, e);
-            placed_message_writer.write(Placed(e));
+            commands.entity(e).insert(Placed);
         }
     }
 }
@@ -86,9 +98,8 @@ fn clear_mid_fixed_input(
 }
 
 fn handle_mouse_click(
-    mut right_clicked_writer: MessageWriter<RightClicked>,
-    mut left_clicked_writer: MessageWriter<LeftClicked>,
-    mouse_buttons: Res<SyncMouseButtonInput>,
+    mut commands: Commands,
+    mouse_buttons: Res<ButtonInput<MouseButton>>,
     grid_entity_map: Res<GridEntityMap>,
     window: Single<&Window>,
     camera: Single<(&Camera, &GlobalTransform)>,
@@ -102,10 +113,10 @@ fn handle_mouse_click(
             && let grid_pos = GridPos::from_world_pos(cursor_pos)
             && let Some(entity) = grid_entity_map.get(&grid_pos) {
                 if lc {
-                    left_clicked_writer.write(LeftClicked(entity));
+                    commands.entity(entity).insert(LeftClicked);
                 }
                 if rc {
-                    right_clicked_writer.write(RightClicked(entity));
+                    commands.entity(entity).insert(RightClicked);
                 }
             }
         }

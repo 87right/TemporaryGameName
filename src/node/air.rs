@@ -1,6 +1,6 @@
-use bevy::ecs::component::Component;
+use bevy::prelude::*;
 
-use crate::grid::common::BasicNode;
+use crate::grid::{common::BasicNode, component::LeftClicked, system_set::GridFixed};
 
 #[derive(Component)]
 pub struct Air;
@@ -15,5 +15,17 @@ impl BasicNode for Air {
         commands.entity(entity).insert(
             Air
         );
+    }
+    fn register(app: &mut bevy::app::App) {
+        app.add_systems(FixedUpdate, on_right_clicked.in_set(GridFixed::MainUpdate));
+    }
+}
+
+// test
+fn on_right_clicked(
+    node_q: Query<Entity, (With<LeftClicked>, With<Air>)>,
+) {
+    for entity in node_q {
+        println!("{entity}");
     }
 }

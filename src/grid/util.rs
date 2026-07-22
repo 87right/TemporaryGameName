@@ -1,16 +1,17 @@
 use bevy::prelude::*;
 
 use crate::{common::constant::CELL_SIZE, grid::{
-    common::BasicNode, component::{GridPos, PlaceBuff}, message::Removed, resource::{Background, GridEntityMap, GridGenSetting}
+    common::BasicNode, component::{GridPos, PlaceBuff, Removed}, resource::{Background, GridEntityMap, GridGenSetting}
 }};
 
 pub fn replace<To: BasicNode>(
     commands: &mut Commands,
-    removed_message_writer: &mut MessageWriter<Removed>,
     e: Entity, 
 ) {
-    removed_message_writer.write(Removed(e));
-    commands.entity(e).insert(PlaceBuff(To::get_id()));
+    commands.entity(e).insert((
+        PlaceBuff(To::get_id()),
+        Removed
+    ));
 }
 
 pub fn respawn_grid(

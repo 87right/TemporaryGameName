@@ -41,3 +41,15 @@ impl PlaceBuff{
         Self(id.to_string())
     }
 }
+
+#[derive(Component)]
+pub struct Removed;
+
+#[derive(Component)]
+pub struct Placed;
+
+#[derive(Component)]
+pub struct RightClicked;
+
+#[derive(Component)]
+pub struct LeftClicked;
