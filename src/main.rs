@@ -3,9 +3,9 @@
 mod camera;
 mod common;
 mod grid;
-mod node;
-mod material;
 mod item;
+mod material;
+mod node;
 
 use bevy::prelude::*;
 

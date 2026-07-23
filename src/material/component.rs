@@ -9,5 +9,16 @@ pub struct Channel<T: Component> {
 
 #[derive(Component)]
 pub struct Port<T: Component> {
-    dummy: T
+    pub filter: Option<Filter<T>>,
 }
+
+#[derive(Component)]
+pub enum Filter<T: Component> {
+    Specific { val: T },
+}
+
+#[derive(Component)]
+pub struct Inventory<T: Component>(pub Vec<MaterialSlot<T>>);
+
+#[derive(Component)]
+pub struct MaterialSlot<T: Component>(pub Option<T>);

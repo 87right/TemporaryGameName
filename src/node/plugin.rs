@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{grid::{common::BasicNode, component::Removed, resource::SpawnTable, system_set::GridFixed}, node::*};
-
+use crate::{
+    grid::{common::BasicNode, component::Removed, resource::SpawnTable, system_set::GridFixed},
+    node::*,
+};
 
 pub struct NodePlugin;
 impl Plugin for NodePlugin {
@@ -18,15 +20,13 @@ fn register<T: BasicNode + Component + 'static>(app: &mut App) {
     T::register(app);
 }
 
-fn spawn_table_insert<T: BasicNode>(
-    mut spawn_table: ResMut<SpawnTable>
-) {
+fn spawn_table_insert<T: BasicNode>(mut spawn_table: ResMut<SpawnTable>) {
     spawn_table.insert(T::get_id(), T::spawn);
 }
 
 fn on_remove<T: BasicNode + Component>(
     mut commands: Commands,
-    t_q: Query<Entity, (With<T>, With<Removed>)>
+    t_q: Query<Entity, (With<T>, With<Removed>)>,
 ) {
     for e in t_q {
         T::remove(&mut commands.entity(e));

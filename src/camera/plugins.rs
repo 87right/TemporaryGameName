@@ -1,9 +1,6 @@
-use bevy::{
-    prelude::*,
-    input::mouse::*,
-};
-use crate::common::constant::*;
 use crate::camera::components::*;
+use crate::common::constant::*;
+use bevy::{input::mouse::*, prelude::*};
 
 pub struct CameraPlugins;
 impl Plugin for CameraPlugins {
@@ -23,41 +20,45 @@ fn add_systems_startup(app: &mut App) {
 }
 
 fn add_systems_update(app: &mut App) {
-    app.add_systems(Update, (
-        camera_movement_system,
-        camera_zoom_system
-    ));
+    app.add_systems(Update, (camera_movement_system, camera_zoom_system));
 }
 
-fn setup_camera(mut commands: Commands){
+fn setup_camera(mut commands: Commands) {
     commands.spawn((
         Camera2d,
         Camera::default(),
-        Transform::from_xyz (
-            MAP_WIDTH  as f32 * CELL_SIZE / 2.,
+        Transform::from_xyz(
+            MAP_WIDTH as f32 * CELL_SIZE / 2.,
             MAP_HEIGHT as f32 * CELL_SIZE / 2.,
-            100.
+            100.,
         ),
     ));
 }
 
 fn camera_movement_system(
-    mut camera_drag_data: ResMut<CameraDragData>, 
+    mut camera_drag_data: ResMut<CameraDragData>,
     camera_query: Single<(&mut Transform, &Projection), With<Camera>>,
-    buttons: Res<ButtonInput<MouseButton>>, 
-    window: Single<&Window>
+    buttons: Res<ButtonInput<MouseButton>>,
+    window: Single<&Window>,
 ) {
-    let( mut transform, projection) = camera_query.into_inner();
-    if let Some(position) = window.cursor_position() 
-    && let Projection::Orthographic(ref  orthographic) = *projection {
-
+    let (mut transform, projection) = camera_query.into_inner();
+    if let Some(position) = window.cursor_position()
+        && let Projection::Orthographic(ref orthographic) = *projection
+    {
         if buttons.just_pressed(MouseButton::Middle) {
             camera_drag_data.last_cursor_pos = position;
             camera_drag_data.last_camera_pos = transform.translation;
         }
 
         if buttons.pressed(MouseButton::Middle) {
-            transform.translation = camera_drag_data.last_camera_pos + (camera_drag_data.last_cursor_pos - position).extend(0.)*Vec3 {x: 1., y:-1., z: 1.}*orthographic.scale;
+            transform.translation = camera_drag_data.last_camera_pos
+                + (camera_drag_data.last_cursor_pos - position).extend(0.)
+                    * Vec3 {
+                        x: 1.,
+                        y: -1.,
+                        z: 1.,
+                    }
+                    * orthographic.scale;
             camera_drag_data.last_cursor_pos = position;
             camera_drag_data.last_camera_pos = transform.translation;
         }
