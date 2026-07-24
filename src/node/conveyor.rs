@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 
 use crate::{
-    grid::{common::*, component::*, resource::*, system_set::*, util::*},
-    node::*,
     consumable::component::*,
+    grid::{common::*, component::*, resource::*, system_set::*, util::*},
     item::component::Item,
+    node::*,
 };
 
 #[derive(Component)]
@@ -35,33 +35,20 @@ impl BasicNode for Conveyor {
                 to: Direction::X,
             },
             Inventory::<Item> {
-                content: vec![
-                    MaterialSlot::<Item> {
-                        val: None,
-                        vol: 0
-                    }
-                ],
+                content: vec![MaterialSlot::<Item> { val: None, vol: 0 }],
                 size: 1,
             },
             Channel::<Item> {
-                input: vec![
-                    Port::<Item> {
-                        filter: Filter::<Item>::Any,
-                        slot: TargetSlot::Specific(
-                            SlotID(0)
-                        ),
-                        grid: TargetGrid::Specific(GridPos::NEG_X),
-                    }
-                ],
-                output: vec![
-                    Port::<Item> {
-                        filter: Filter::<Item>::Any,
-                        slot: TargetSlot::Specific(
-                            SlotID(0)
-                        ),
-                        grid: TargetGrid::Specific(GridPos::X),
-                    }
-                ],
+                input: vec![Port::<Item> {
+                    filter: Filter::<Item>::Any,
+                    slot: TargetSlot::Specific(SlotID(0)),
+                    grid: TargetGrid::Specific(GridPos::NEG_X),
+                }],
+                output: vec![Port::<Item> {
+                    filter: Filter::<Item>::Any,
+                    slot: TargetSlot::Specific(SlotID(0)),
+                    grid: TargetGrid::Specific(GridPos::X),
+                }],
                 gather: vec![],
             },
             TextureBuff("textures/tile/conveyor_0_0.png".to_string()),
@@ -116,15 +103,15 @@ fn on_left_clicked(
             replace::<air::Air>(&mut commands, e);
         }
 
-        if keys.pressed(KeyCode::Space) {
-            if let Some(slot) = inv.get_mut(SlotID(0)) {
-                if slot.val.is_some() {
-                    println!("入ってるよ!");
-                } else {
-                    println!("追加したよ!");
-                    slot.val = Some(Item::Clay);
-                    slot.vol = 1;
-                }
+        if keys.pressed(KeyCode::Space)
+            && let Some(slot) = inv.get_mut(SlotID(0))
+        {
+            if slot.val.is_some() {
+                println!("入ってるよ!");
+            } else {
+                println!("追加したよ!");
+                slot.val = Some(Item::Clay);
+                slot.vol = 1;
             }
         }
 

@@ -9,8 +9,8 @@ pub trait Consumable: Component + Clone + Copy + PartialEq + Eq {
 }
 
 pub struct MaterialSlotBuff<T>
-where 
-    T: Consumable
+where
+    T: Consumable,
 {
     pub content: MaterialSlot<T>,
     pub index: SlotID,

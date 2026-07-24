@@ -2,10 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     consumable::common::*,
-    grid::{
-        component::*,
-        resource::*,
-    },
+    grid::{component::*, resource::*},
 };
 
 #[derive(Component)]
@@ -17,11 +14,15 @@ where
     pub output: Vec<Port<T>>,
     pub gather: Vec<Port<T>>,
 }
-impl<T> Channel<T> 
-where 
-    T: Consumable
+impl<T> Channel<T>
+where
+    T: Consumable,
 {
-    pub fn insert(&mut self, to_inventory: &mut Inventory<T>, buff: &mut MaterialSlotBuff<T>) -> bool {
+    pub fn insert(
+        &mut self,
+        to_inventory: &mut Inventory<T>,
+        buff: &mut MaterialSlotBuff<T>,
+    ) -> bool {
         let mut result = false;
         for input in self.input.iter_mut() {
             if input.insert(to_inventory, &mut buff.content) {
@@ -41,15 +42,19 @@ where
     pub slot: TargetSlot,
     pub grid: TargetGrid,
 }
-impl<T> Port<T> 
-where 
-    T: Consumable
+impl<T> Port<T>
+where
+    T: Consumable,
 {
-    pub fn get_first<'a>(&self, inventory: &'a Inventory<T>) -> Option<(SlotID, &'a MaterialSlot<T>)> {
+    pub fn get_first<'a>(
+        &self,
+        inventory: &'a Inventory<T>,
+    ) -> Option<(SlotID, &'a MaterialSlot<T>)> {
         for id in self.slot.get_slot_ids(inventory.size) {
-            if let Some(slot) = inventory.get(id) 
-            && let Some(val) = slot.val 
-            && self.filter.check(val) {
+            if let Some(slot) = inventory.get(id)
+                && let Some(val) = slot.val
+                && self.filter.check(val)
+            {
                 return Some((id, slot));
             }
         }
@@ -57,12 +62,10 @@ where
     }
     pub fn get_buff(&self, inventory: &Inventory<T>) -> Option<MaterialSlotBuff<T>> {
         if let Some((id, slot)) = self.get_first(inventory) {
-            Some(
-                MaterialSlotBuff::<T> {
-                    content: slot.clone(),
-                    index: id,
-                }
-            )
+            Some(MaterialSlotBuff::<T> {
+                content: *slot,
+                index: id,
+            })
         } else {
             None
         }
@@ -70,19 +73,16 @@ where
     pub fn insert(&self, inventory: &mut Inventory<T>, from: &mut MaterialSlot<T>) -> bool {
         let mut inserted = false;
         for id in self.slot.get_slot_ids(inventory.size) {
-            if let Some(to) = inventory.get_mut(id) 
-            && to.insert(from) {
+            if let Some(to) = inventory.get_mut(id)
+                && to.insert(from)
+            {
                 inserted = true;
             }
         }
         inserted
     }
-    pub fn inserted(&mut self) {
-
-    }
-    pub fn update(&mut self) {
-
-    }
+    pub fn inserted(&mut self) {}
+    pub fn update(&mut self) {}
     pub fn get_target_entity(&self, pos: GridPos, grid: &Res<GridEntityMap>) -> Vec<Entity> {
         self.grid.entity_vec(pos, grid)
     }
@@ -134,18 +134,19 @@ impl TargetSlot {
 #[derive(Component, Clone, Copy)]
 pub enum TargetGrid {
     Any,
-    Specific(GridPos)
+    Specific(GridPos),
 }
 impl TargetGrid {
     pub fn entity_vec(&self, pos: GridPos, grid: &Res<GridEntityMap>) -> Vec<Entity> {
         match self {
             Self::Any => vec![],
-            Self::Specific(diff) => 
+            Self::Specific(diff) => {
                 if let Some(e) = grid.get(&(pos + *diff)) {
                     vec![e]
                 } else {
                     vec![]
                 }
+            }
         }
     }
 }
@@ -160,7 +161,7 @@ where
 }
 impl<T> Inventory<T>
 where
-    T: Consumable
+    T: Consumable,
 {
     pub fn get(&self, id: SlotID) -> Option<&MaterialSlot<T>> {
         self.content.get(id.0)
